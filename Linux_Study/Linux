@@ -1,0 +1,23 @@
+##Tee
+echo "Hello, world" | tee output.txt --- Запись текста "Hello world" в файл output.txt
+
+echo "Hello again!" | tee -a output.txt ---  -a не перезаписывает файл, а добавляет новые данные в конец файла
+
+##Nl
+nl filename.txt ---- Добавление нумирации строк в файле
+
+nl -v 10 filename.txt  ----  -v задает начальный номер для первой строки
+
+##Wc - world count
+ wc filename.txt ---- Вывод количества строк, слов и символов
+ 
+ wc -l filename.txt ---- Вывод только количество строк
+ 
+ wc -w filename.txt ---- Выводит количество слов
+ 
+ wc -c filename.txt ---- Выводит количество байтов в файле
+ 
+ wc -m filename .txt ---- выводит количество символов
+ 
+ 
+ 

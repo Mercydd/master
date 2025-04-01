@@ -1,0 +1,18 @@
+FROM ubuntu:22.04
+LABEL autor=Illia
+RUN apt-get update
+RUN apt-get install nginx -y
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+WORKDIR /var/www/html/
+#Копируем заготовленый индекс файл и переносим его в рабочую директорию
+COPY /index.html .
+#Копирование скрипта из локального сервера в контейнер в директ. /opt/script.sh
+COPY /script.sh /opt/script.sh
+#Повышение привелегий файла до исполняемого скрипта по адресу /opt/script.sh
+RUN chmod +x /opt/script.sh
+ENV OWNER=Illia_Owner
+ENV TYPE=demo
+EXPOSE 80
+#Запуск скрипта командой
+CMD ["/opt/script.sh"]
+

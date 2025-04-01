@@ -1,0 +1,5 @@
+ISBN,Title,Author,Price
+978-1234567890,The Great Adventure,Alice Writer,19.99
+978-2345678901,Mystery in the Woods,Bob Author,24.99
+978-3456789012,Cooking Basics,Carol Chef,15.99
+978-4567890123,Science Explained,David Scientist,29.99

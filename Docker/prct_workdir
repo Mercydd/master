@@ -1,0 +1,11 @@
+FROM ubuntu:latest
+RUN apt-get update
+RUN apt-get install nginx -y
+# Копирование файлов из одной директории в другую
+COPY files/index.html /var/www/html/
+# Указание рабочей директории при запуске контейнера
+WORKDIR /var/www/html
+COPY files/index.html . 
+#COPY files/index.html /var/www/html
+#Точка сдесь указана потому что рабочей директорией уже есть /var/www/html	
+CMD ["nginx","-g","daemon off;"]

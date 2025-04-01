@@ -1,0 +1,144 @@
+### Для удаления всего ###
+docker system prune -a --volumes
+############################
+
+docker run $name --- Создание нового контейнера
+docker run -d $name --- Запуск контейнера в фоново режиме
+docker run --rm -d $name | docker kill $name --- После остановки контейнера он уничтожается
+docker ps --- Посмортеть процессы
+docker ps -a --- Посмореть все, даже скрытые процессы 
+docker rm --- Удаление контейнера(name or id)
+docker rmi --- Удаление образа
+docker images --- Список всех собраных образов
+docker pull --- Скачать образ с DockerHub
+docker run -d $image --- Запустить образ с доступом к консоли
+docker start $id --- Запуск уже сработавшего контейнера
+docker pause $id --- Заморозить контейнер
+docker unpause $id --- Разморозить контейнер
+docker stop $id $name --- Остановить контейнер
+docker kill $id $name --- Убить процесс(Без ожидания)
+docker inspect $name --- Информация о контейнере
+docker stats $name --- Информация о ресурсах контейнера
+docker logs -f(Постоянный лог)$name ---- Посмотреть последние логи контейнера
+docker exec -it $name /bin/bash --- Открытие консоли в контейнере
+docker exec -it $name $command --- Выполнить команду внутри контейнера
+docker run -p 80:80 $name --- Проброс портов с сервера на контейнер
+docker run -e $variables | docker run --name DB-mysql -e MYSQL_ROOT_PASSWORD=1234 mysql "Запуск контейнера mysql с переменной MYSQL_ROOT_PASSWORD с значением переменной "1""
+### Короткий путь входа в БД ###
+docker exec -it $DBname mysql -uroot -p
+####################################
+
+### Добавление переменной в систему ###
+export TEST_VAR=123123213132
+######################### 
+
+##@ NGINX  @###
+Редактирование nginx
+docker exec -it $name /bin/bash > cd /usr/share/nginx/html 
+#####################################
+				
+				VOLUMES
+
+Host volumes:
+docker run -v /some/content(Контент который ходим добавить):/usr/share/nginx/html $name   ---- Добавление контента из оболочки в контейнер
+
+Persistung Data - Cохраняемые данные(Контейнирование места на диске)
+Anonymous volumes:
+docker run --rm --name $name -p 80:80 -v /usr/share/nginx/html -d nginx | volume берётся из папки /var/lib/docker/volume при создании контейнера там же появляется
+
+Named volumes:
+docker run --rm --name $name -p 80:80 -v $name:/usr/share/nginx/html -d nginx | Тоже самое что аноноимное, но с названием
+
+				NETWORK
+BRIDGE(Контейнеры получают свой IP):
+docker network create --driver bridge NAME --- создание сети с типом сети bridge(--drive bridge можно не писать создает по умолчанию)
+docker run --net $NETWORKNAME nginx --- Запуск контейнера с кастомной сети				
+
+HOST(Контейнеры получают IP хоста):
+docker network create --driver host NAME	- host network
+
+NONE(Изолированы):
+docker network create --driver none NAME - none network
+
+MACVLAN:
+Каждый контейнер в сети получает свой IP i MAC адресса(и свою сетевую карту) маршрутизация просходит напрямую к контейнеру через сервер
+
+IPVLAN:
+Каждый контейнер получает свой IP адресс(и сетевую карту) но MAC адресс остается таким же, как и у сетевой карты сервера 
+
+docker network ls --- Список всех сетей
+docker network rm $networkname --- Удаление сети  
+docker network inspect $networkname - Посмотреть данные о сети
+docker network create -d(short --driver) bridge --subnet 192.168.10.0/24 --gateway 192.168.10.1 myNet192 --- Добавление используемого пула айпи в сеть
+docker run --net $networkname $imagename --- Запуск контейнера в созданой сети
+docker network connect $networkname $contname --- Подключение контейнера к существующей сети
+docker network disconnect $NetworkID $contname --- Отключение контейнера от сети 
+docker network create -d macvlan --subnet 192.168.100.0/24 --gateway 192.168.100.1 --ip-range 192.168.100.99/32(Это ip будет у контейнера) -o (агумент) parent=eth0(родительская сеть) myMACvlan
+docker run -ip 192.168.1.33 --net myMACvlan --- Подключение контейнера к мак сети
+
+
+				СОЗДАНИЕ КОНТЕЙНЕРА
+docker build -t(Имя файла)$image_name:$version /place_of_file --- Создание контейнера из файла
+docker buld -t myimage:v01 /here 
+
+docker tag $ID $repository_name $tag_name --- Изменение имени образа
+docker image inspect $image_id --- Посмотреть содержание образа
+
+CMD:
+Задает команду по умолчанию, которая будет выполняться при запуске контейнера, если не указана любая другая команда в строке
+CMD ["echo", "Hello world!"]
+docker run my_image ls --- В таком слуае будет выполнена команда ls
+
+ENTRYPOINT:
+Задает команду, которая будет всегда выполняться при запуске контейнера, независимо от команды указаной в строке при запуске контейнера
+ENTRYPOINT ["echo"]
+docker run image Hello world >> echo Hello world (Начальная точка "echo", переменная "Hello world")
+CMD - команда по умолчанию, которую можно заменить при запуске контейнера
+ENTERYPOINT - команда, которая всегда выполняется, при этом CMD служит для нее аргументом 
+
+При использовании команды EXPOSE, которая открывает порты, нужно запускать контейнер так:
+docker run --rm -d --name $container_name -P(Нужный параметр для портов) $image:$version 
+
+
+DOCKER PYTHON:
+При создании скрипта в контейнера питона нужно правильно искользовать команду так:
+docker run --rm -it mypython:v1  | Флаг -it позволяет взаимодействовать с консолью
+
+СМОТРЕТЬ ВСЕ ФАЙЛЫ В ПАПКЕ ДОКЕР ТАМ ВСЕ ПРИМЕРЫ С ЭТОЙ ТЕМЫ
+
+
+			    Docker Compose
+docker compose up (-d)  - запуск докер компоус файла в директории
+docker compose logs -f --- посмотреть логи запущенного контейнера
+docker compose stop --- остановка контейнера
+Пример компоус файла:
+
+version: "3,5"
+services(Описание контейнеровы):
+ web-server(Тут любое имя сервера):
+   image(Образ):nginx:stable
+      container_name:mynginx
+   volumes:
+      - '/opt/web/html:/var/www/html'
+      - '/opt/web/pics:/var/www/pictures'
+   environment(Переменные):
+      - 'NGINX_HOST=web.illia.pl'
+      - 'NGINX_PORT=80'
+   ports:
+      - '80:80'
+      - '433:433'
+   restart(Тут указать что делать с контейнером при остановке сервера или перезагрузке):
+	unless-stopped #always| - всегда будет запускаться контейнер  /no/on-failure		
+
+networks:
+	default:
+	driver: bridge
+	name: webnet
+	
+compose примеры находятся в папке /opt/	
+	
+	
+
+
+
+	

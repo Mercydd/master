@@ -1,0 +1,247 @@
+
+#paste
+paste file1.txt file2.txt ---- Соединяет первою строку первого файла и второго в одну строку, разделяя табуляцией
+
+#tr
+tr --- Замена символов |=|=| echo "abcdef" | tr 'abc' '123' => "123def"
+echo "hello world" | tr -d 'aeiou' => "hll wrld" ---- Удаление символов
+echo "user123name456" | tr -d '0-9' => "username" ---- Удаление всех цифр
+cat file.txt | tr -s '\n' ---- Удаляет лишние строки в файле
+
+#head
+head file.txt ---- Выводит первые 10 строк
+head -n 5 file.txt ---- Выводит 5 строчек
+
+#tail
+tail file.txt ---- Выводит последние 10 строк файла
+tail -n 5 file.txt ---- 5 последних строчек файла
+tail -f /var/log/syslog ---- Выводит последних 10 строчек и постоянно обновляет их
+
+#join
+join file1.txt. file2.txt ---- Обьеденяет 2 файла
+
+#tee
+echo "Hello World!" | tee output.txt ---- Покажет на экране "Hello Wolrd!" и запишет это в файл output.txt
+echo "New Line" | tee -a output.txt ---- Добавляет новые строки в файл
+
+#nl
+nl file1.txt ---- Нумерация файла
+
+#expand
+expand file.txt --- Заменяет табуляции на пробелы | 1 табуляция - 8 пробелов
+expand -t 4 file.txt --- 1 табуляция - 4 пробела
+unexpand -t 4 file.txt ---- 4 пробела - 1 табуляция
+
+#uniq
+uniq file.txt --- Удаляет совпадение 
+sort file.txt | uniq -d ---- Увидеть дублирующиеся строки
+
+#grep
+grep "word" file.txt ---- Выводит строку в которой есть слово "word"
+grep -i "word" file.txt ---- Игнорирует разницу между Word i word
+grep -o "word" file.txt ---- Выводит только совпавшие слова
+
+#free -h
+free -h ---- Показывает информацию о памяти(RAM)
+sudo sync && echo 3 > /proc/sys/vm/drop_caches === Очищение кеша памяти
+
+#disk
+top ---- ОБЩИЙ МОНИТОРИНГ СИСТЕМЫ
+htop ---- Удобный мониторинг
+
+
+vmstat --- Посмотреть сколько памяти 
+df -h --- Посмотреть использование диска
+
+#ps
+ps aux ---- Полный список процессов
+ps -ef ---- Альтернативный полный список процессов
+
+#kill
+kill PID(process id)
+ps aux | grep $name
+
+
+#User managment *
+sudo useradd username ---- Создание нового пользователя
+ls -l /home  ---- Посмотреть какие есть пользователи
+cat /etc/passwd ---- Посмотреть всех пользователей в системе(полностью)
+cat /etc/passwd | grep username ---- посмотреть айди пользователя (1 цифра) стандарт 1000 
+ниже 1000 системные аккаунты выше 1000 пользовательские
+
+#useradd
+sudo useradd -m(create home directory) username ---- Создание нового пользователя с домашней директорией
+sudo useradd -r(specific user) username ---- Создание системного ползователя ниже 1000 UID
+
+#userdel
+sudo userdel username ---- Удаление пользователя
+sudo userdel -r(del home dir) username ---- Удаление пользователя с домашней директорией
+
+#userpassword
+passwd ---- Поменять пароль текущего пользователя
+sudo passwd username ---- Смена пароля для пользователя
+
+#groupadd
+sudo groupadd groupname ---- Создание группы
+sudo usermod -aG groupname username ---- Добавление пользователя в группу
+sudo usermod -aG sudo username ---- Добавление пользователя в администраторы
+
+#groups
+groups username ---- Просмотр групп пользователя
+
+#groupdel
+sudo gpasswd -d username groupname ---- Удаление пользователя из группы
+sudo groupdel groupname ---- Удаление группы полностью
+
+#changeowner
+sudo chown username file.txt ---- Меняет владельца файла
+sudo chgrp groupname file.txt ---- Меняет группу файла
+
+#Process managment *
+#nice value
+Nice value(обычный приоритет от -20(высокий приоритет) до 19(самый низкий приоритет))
+default nice = 0
+nice -n 10 progname ---- Установка приоритета
+sudo renice -5 -p 1234(PID) ---- Если процесс запущен, можно изменить его приоритет вот так
+
+
+
+#realtime priority
+Realtime priority(Процессы в реальном времени от 0(низкий приоритет) до 99(высокий приоритет))
+RT(Real time) процессы имеют более высокий приоритет чем обычные процессы с nice value
+sudo chrt -f 50 progname ---- Запуск процесса с RT-приотритетом -f(FIFO - первый пришел первый обслужен)
+sudo chrt -r -p 80 1234 ---- Изменение приоритета для запущенного процесса -r(Round robin - режим циклического выполнения)
+-p 80 => установка уровня приоритета | 1234 => PID
+
+#Повышение приотритета текущего процесса
+sudo renice -10 -p $(pgrep firefox)
+
+#Запуск критически важного процесса
+sudo nice -n -10 ./server.sh ---- Высокий приоритет
+
+#FORK *
+forking --- Создание новых процессов(дочерних) из уже работаюищх
+
+fork() - системный вызов, который создает точную копию текущего процесса
+. наследует код, память, ресурсы от родительского процесса
+. получает уникальный PID
+. выполняется параллельно с родительским процессом
+
+#Service Managment(systemd) *
+systemctl status service_name ---- Проверка статуса службы
+sudo systemctl start servive_name ---- Запуск работы службы
+sudo systemctl stop service_name ---- Остановка работы службы
+sudo systemctl restart service_name ---- Перезагрузка работы службы
+*sudo systemctl reload service_name ---- Перечитать конфигурацию без перезагрузки сервиса
+sudo systemctl enable service_name ---- Включение автозапуска службы
+sudo systemctl disable service_name ---- Выключение автозапуска службы
+
+#Просмотр всех служб и их статусов
+systemctl list-units --type=service(их статус) ---- Список всех АКТИВНЫХ служб и их статусы
+systemctl list-units-files --type=service(статус) ---- Показать все службы(включая отключенные)
+
+#journalctl
+journalctl -u service_name ---- Просмотр логов службы
+
+example:
+journalctl -u nginx --since "1 hour ago" #Будут показаны логи за послежний час
+
+#Snap *
+snap find название программы ---- Нахождение пакетов установки программы
+sudo snap install progname ---- Установка программы
+sudo snap remove progname ---- Удаление пакетов программы
+snap list ---- Список установленных пакетов
+sudo snap refresh ---- Обновить все snap-программы
+sudo snap refresh progname ---- Обновить конкретную снап программу
+sudo run progname ---- Запустить установленное приложение
+
+#Inode
+Inode - структура данних в файловой системе, которая хранит информацию о файле(метаданные)
+
+#Mount
+Mount - процесс подключени файловой системы(диска, флешки, сетевого ресурса)
+mount ---- посмотреть смонтированых файловых систем
+cat /etc/mtab ---- посмотреть все активные смонтированые системы
+
+lsblk ---- проверка списка дисков
+
+#Swap
+
+Swap - это виртуальная память, используемая Linux, когда не хватает оперативной памяти(RAM)
+Когда оперативная память переполняется, система начинает перемещать менее используемые данные в SWAP, что бы освободить место в RAM для активных процессов
+SWAP:
+Раздел Swap(Swap Partition) - отдельный раздел на диске
+Файл Swap(Swap File) - обычный файл, используемый как Swap
+
+swapon --show ---- Проверить активный Swap
+free -h ---- Так же посмотреть наличные swap
+
+#Linux Logical Volume Manager(LVM)
+LVM(Logical Volume Manager) - это система управления дисками в Linux, которая дает гибкость прри работае с разделами
+
+
+#Networking
+(1)Физический уровень - Ethernet, Wi-Fi, оптические сети
+(2)Канальный уровень - MAC-адреса, VLAN
+(3)Сетевой уровень - IP-адреса, маршрутизация
+(4)Транспортный уровень - TCP, UDP
+(5-7)Прикладной уровень - HTTP, FTP, SSH
+
+ip a ---- Показывает список интерфейсов и их ip-адресса
+ifconfig ---- Тоже показывает интерфейсы
+ip r ---- Посмотреть таблицы маршрутизации
+netstat -rn ---- Тоже просмотр таблиц маршрутизации
+ss -tulnp ---- Просмотр активных соединений и прослушиваемых портов
+
+#Настройка интерфейсов
+ip link show ---- Показать сетевый интерфейсы
+ip neigh show ---- Показать ARP-таблицу
+ip link set eht0 up ---- Включить сетевой интерфейс
+ip link set eht0 down ---- Выключить интерфейс
+ip addr add 192.168.1.10/24 dev eth0 ---- Добавить Айпи адрес интерфейсу
+
+#Маршрутизация
+ip route show --- Проcмотр маршрутов
+
+#Работа с DNS
+cat /etc/resolv.conf ---- Просмотр текущих DNS-серверов
+nslookup google.com ---- Запрос DNS
+dig google.com ---- Расширенный DNS-запрос
+
+#Брандмауэр и безопасность
+iptables -L ---- Просмотр правил
+
+#Subnetting * 
+Subnetting - процесс разделения одной большой сети на несколько маньших сетей
+.Эффективнее испольозовать IP-адреса
+.Повысить безопасность и управляемость сети
+.Оптимизировать маршрутизацию
+
+ethtool eth0 ---- Проверка скорости соединения
+RARP (Reverse ARP) - когда не знает своейго айпи обращается к серверу и получает его с помощью своего MAC
+
+#Linux File Transfer under Networking
+!SCP (Secure Copy Protocol) - Безопасный способ копирования файлов между двумя машинами через ssh
+С локальной на удаленую:
+scp /path/to/local/file user@remote:/path/to/remove/destination
+С удаленной на локальную:
+scp user@remote:/path/to/remote/file /path/to/local/destination
+Копировать директории:
+scp -r /path/to/local/dir user@remote:/path/to/remote/destination
+
+!SFTP (SSH File Transfer Protocol)
+sftp user@remote - Подключение к серверу по sftp
+get remote_file --- скачать файл с удаленного сервера
+put local_file ---- загрузить файл на удаленный сервер
+exit ---- Выйти из сессии SFTP
+
+#Linux Backup Tools
+Rsync - инструмент для синхронизации и создания резервных копий файлов
+rsync -av /path/to/source/ /path/to/destination --- Копирование данных локально
+     -a(архивный режим) -v(выводит подробную информацию)
+
+
+
+ 
+
+
